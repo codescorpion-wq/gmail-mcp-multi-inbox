@@ -1,11 +1,13 @@
-// OPTIONAL: run this for local testing only (`npm start`).
+// OPTIONAL: local testing only (`npm start`). Kept out of the project root on purpose:
+// Vercel auto-detects a root server.js / index.js / app.js that imports express and would
+// deploy it instead of the /api functions.
 // The actual deployment target is Vercel — see api/mcp/[secret].js and api/health.js,
 // which reuse the same tool definitions from lib/gmail-mcp.js.
 
 import 'dotenv/config';
 import express from 'express';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
-import { buildServer, checkAuth } from './lib/gmail-mcp.js';
+import { buildServer, checkAuth } from '../lib/gmail-mcp.js';
 
 const { PORT = 3000 } = process.env;
 

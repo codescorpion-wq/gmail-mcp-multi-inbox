@@ -76,7 +76,8 @@ MCP_SHARED_SECRET=<output of: openssl rand -hex 32>
 ## 3. Deploy to Vercel
 
 1. Push your copy to **your own private GitHub repo** (or use Vercel's CLI).
-2. Vercel → **Add New → Project** → import that repo → **Deploy**. No build settings needed.
+2. Vercel → **Add New → Project** → import that repo. Leave **Framework Preset** as **Other**
+   (the included `vercel.json` sets this) and leave build settings empty → **Deploy**.
 3. **Settings → Environment Variables**: add `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`,
    `GMAIL_REFRESH_TOKEN`, `GMAIL_ACCOUNT_EMAIL`, `MCP_SHARED_SECRET`.
 4. **Deployments → Redeploy** (env vars apply only to new deploys).
@@ -127,6 +128,7 @@ Runs on `http://localhost:3000/mcp` and expects the header
 | `api/mcp/[secret].js` | The connector endpoint (secret checked in the path) |
 | `api/connect.js`, `api/oauth-callback.js` | Browser sign-in for extra inboxes |
 | `api/health.js` | Liveness check (shows inbox count only) |
+| `dev/local-server.js` | Optional local test server (`npm start`) |
 | `auth/get-refresh-token.js` | One-time local token script |
 
 The secret sits in the URL path rather than a header because Claude treats a `401`
@@ -150,6 +152,9 @@ Each request builds a fresh, stateless MCP session, which suits serverless funct
 - **No refresh token returned:** the account already granted access. Remove the app at
   myaccount.google.com/permissions and run the sign-in again.
 - **`invalid_grant` errors after a week:** your OAuth app is in Testing mode. See the note in step 1.
+- **`/api/health` returns 404 after deploy:** Vercel detected the project as an Express or Node server.
+  In Project → Settings → Build and Deployment, set Framework Preset to **Other**, then redeploy.
+  Don't add a `server.js`, `index.js` or `app.js` at the repo root.
 - **Connector shows no tools:** check `/api/health`, confirm every env var is set, and redeploy.
 
 ## Contributing

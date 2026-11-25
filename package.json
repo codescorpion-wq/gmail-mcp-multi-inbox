@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "description": "Self-hosted remote MCP server that connects one or more Gmail inboxes to Claude as a custom connector",
   "type": "module",
-  "main": "server.js",
+  "main": "lib/gmail-mcp.js",
   "scripts": {
-    "start": "node server.js",
+    "start": "node dev/local-server.js",
     "get-token": "node auth/get-refresh-token.js"
   },
   "dependencies": {
