@@ -106,7 +106,15 @@ Treat that URL like a password: anyone who has it can read and send mail as that
    `https://<your-project>.vercel.app/api/mcp/<MCP_SHARED_SECRET>--support`
 
 For safety, `/api/connect` only accepts addresses on the same domain as
-`GMAIL_ACCOUNT_EMAIL`. Edit `allowedDomain()` in `lib/oauth-web.js` to change that.
+`GMAIL_ACCOUNT_EMAIL`. If your first inbox is `@gmail.com`, any other `@gmail.com`
+address is accepted. To allow mixed domains (say a personal Gmail plus a work
+address), add the env var `ALLOW_ANY_GMAIL=true`.
+
+Every inbox you add must also be listed as a **test user** in Google Cloud
+(Audience → Test users) while your OAuth app is in Testing mode.
+
+Each inbox shows up in Claude as its own connector with the same seven tools, and
+the tool descriptions name the inbox, so Claude knows which one it's using.
 
 ---
 

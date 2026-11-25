@@ -1,17 +1,18 @@
 // GET /api/connect — start the Google sign-in for another inbox.
-import { SCOPES, webClient, allowedDomain, newState, page, escapeHtml } from '../lib/oauth-web.js';
+import { SCOPES, webClient, allowedDomain, workspaceDomain, newState, page, escapeHtml } from '../lib/oauth-web.js';
 
 export default function handler(req, res) {
   try {
     const client = webClient(req);
     const state = newState();
     const domain = allowedDomain();
+    const hd = workspaceDomain();
     const url = client.generateAuthUrl({
       access_type: 'offline',
       prompt: 'consent select_account',
       scope: SCOPES,
       state,
-      ...(domain ? { hd: domain } : {}),
+      ...(hd ? { hd } : {}),
     });
     res.setHeader('Set-Cookie', `oauth_state=${state}; Path=/api; HttpOnly; Secure; SameSite=Lax; Max-Age=600`);
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
