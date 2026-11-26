@@ -1,5 +1,5 @@
 // GET /api/connect — start the Google sign-in for another inbox.
-import { SCOPES, webClient, allowedDomain, workspaceDomain, newState, page, escapeHtml } from '../lib/oauth-web.js';
+import { SCOPES, webClient, callbackUrl, allowedDomain, workspaceDomain, newState, page, escapeHtml } from '../lib/oauth-web.js';
 
 export default function handler(req, res) {
   try {
@@ -14,7 +14,8 @@ export default function handler(req, res) {
       state,
       ...(hd ? { hd } : {}),
     });
-    res.setHeader('Set-Cookie', `oauth_state=${state}; Path=/api; HttpOnly; Secure; SameSite=Lax; Max-Age=600`);
+    const secure = callbackUrl(req).startsWith('https:') ? '; Secure' : '';
+    res.setHeader('Set-Cookie', `oauth_state=${state}; Path=/api; HttpOnly${secure}; SameSite=Lax; Max-Age=600`);
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     res.status(200).send(
       page(

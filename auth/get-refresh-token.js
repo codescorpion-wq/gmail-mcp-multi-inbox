@@ -6,11 +6,12 @@
 // Usage:
 //   1. cp .env.example .env   and fill in GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET
 //   2. npm install
-//   3. npm run get-token
+//   3. npm run get-token              (first inbox)
+//      npm run get-token -- work      (an extra inbox, saved under the key WORK)
 //   4. A URL is printed — open it, sign in with the Gmail account you want to connect, approve access.
 //   5. Google redirects to localhost; this script catches it and prints your refresh token.
 
-import 'dotenv/config';
+import '../server/env.js';
 import http from 'node:http';
 import { URL } from 'node:url';
 import { google } from 'googleapis';
@@ -25,6 +26,9 @@ if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
   console.error('Missing GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET in .env');
   process.exit(1);
 }
+
+const keyArg = (process.argv[2] || '').toUpperCase().replace(/[^A-Z0-9_]/g, '');
+const suffix = keyArg ? `_${keyArg}` : '';
 
 const oauth2Client = new google.auth.OAuth2(
   GOOGLE_CLIENT_ID,
@@ -63,11 +67,15 @@ const server = http.createServer(async (req, res) => {
       return;
     }
     const { tokens } = await oauth2Client.getToken(code);
+    oauth2Client.setCredentials(tokens);
+    const { data: profile } = await google.gmail({ version: 'v1', auth: oauth2Client }).users.getProfile({ userId: 'me' });
     res.writeHead(200, { 'Content-Type': 'text/html' });
     res.end('<h1>Done</h1>You can close this tab and return to the terminal.');
-    console.log('\n=== Success ===');
-    console.log('Add this to your .env / hosting env vars:\n');
-    console.log(`GMAIL_REFRESH_TOKEN=${tokens.refresh_token}`);
+    console.log(`\n=== Signed in as ${profile.emailAddress} ===`);
+    console.log('Add these lines to your .env (or your host\'s environment variables):\n');
+    console.log(`GMAIL_REFRESH_TOKEN${suffix}=${tokens.refresh_token}`);
+    console.log(`GMAIL_ACCOUNT_EMAIL${suffix}=${profile.emailAddress}`);
+    if (keyArg) console.log(`\nUse GMAIL_ACCOUNT_KEY=${keyArg} (local mode) or add --${keyArg.toLowerCase()} to the connector URL (hosted mode).`);
     if (!tokens.refresh_token) {
       console.log(
         '\nNo refresh_token was returned. This usually means this Google account already\n' +

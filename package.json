@@ -5,7 +5,8 @@
   "type": "module",
   "main": "lib/gmail-mcp.js",
   "scripts": {
-    "start": "node dev/local-server.js",
+    "start": "node server/http.js",
+    "stdio": "node server/stdio.js",
     "get-token": "node auth/get-refresh-token.js"
   },
   "dependencies": {
